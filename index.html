@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>玩家成長系統規格</title>
+<style>
+    :root {
+      --bg: #101218;
+      --panel: #171b24;
+      --panel-2: #1d2330;
+      --ink: #edf0f7;
+      --muted: #aeb7c8;
+      --line: rgba(255,255,255,0.13);
+      --gold: #d5b46a;
+      --blue: #82aaff;
+      --green: #8bd5a0;
+      --red: #e88787;
+      --purple: #c7a4ff;
+      --cyan: #75d6d0;
+      --shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(130,170,255,0.14), transparent 34rem),
+        radial-gradient(circle at 85% 12%, rgba(213,180,106,0.13), transparent 32rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.75;
+      letter-spacing: 0.01em;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 48px 0 96px;
+    }
+
+    header {
+      padding: 40px 42px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(29,35,48,0.96), rgba(18,21,29,0.96));
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      right: -160px;
+      top: -160px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(213,180,106,0.22), transparent 68%);
+      pointer-events: none;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 4.1rem);
+      line-height: 1.12;
+      letter-spacing: 0.05em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 860px;
+      margin-top: 16px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .pill {
+      border: 1px solid rgba(213,180,106,0.45);
+      color: #f2db9a;
+      background: rgba(213,180,106,0.1);
+      border-radius: 999px;
+      padding: 6px 13px;
+      font-size: 0.9rem;
+    }
+
+    nav {
+      margin: 28px 0;
+      padding: 20px 24px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(23,27,36,0.86);
+    }
+
+    nav .nav-title {
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    nav a {
+      color: var(--ink);
+      text-decoration: none;
+      display: inline-block;
+      margin: 4px 18px 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+    }
+
+    section {
+      margin-top: 30px;
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: rgba(23,27,36,0.92);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.22);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.75rem;
+      line-height: 1.25;
+      color: #fff4cf;
+      letter-spacing: 0.03em;
+    }
+
+    h3 {
+      margin: 26px 0 10px;
+      font-size: 1.22rem;
+      color: var(--blue);
+    }
+
+    h4 {
+      margin: 18px 0 6px;
+      font-size: 1.05rem;
+      color: var(--green);
+    }
+
+    p { margin: 8px 0 14px; }
+
+    .lead {
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: linear-gradient(180deg, rgba(29,35,48,0.98), rgba(19,23,31,0.98));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .card strong {
+      color: #fff4cf;
+    }
+
+    .tag {
+      display: inline-block;
+      color: var(--cyan);
+      border: 1px solid rgba(117,214,208,0.35);
+      background: rgba(117,214,208,0.08);
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: 0.82rem;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 16px;
+      margin: 16px 0 22px;
+      border: 1px solid var(--line);
+      background: rgba(16,18,24,0.75);
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.09);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      color: #fff4cf;
+      background: rgba(213,180,106,0.13);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    ul, ol {
+      margin: 10px 0 16px 1.25rem;
+      padding: 0;
+    }
+
+    li { margin: 5px 0; }
+
+    .note {
+      padding: 16px 18px;
+      border-left: 4px solid var(--gold);
+      background: rgba(213,180,106,0.09);
+      border-radius: 14px;
+      color: #f4e5b6;
+      margin: 18px 0;
+    }
+
+    .warning {
+      padding: 16px 18px;
+      border-left: 4px solid var(--red);
+      background: rgba(232,135,135,0.09);
+      border-radius: 14px;
+      color: #ffd8d8;
+      margin: 18px 0;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 18px;
+      align-items: stretch;
+      background: rgba(29,35,48,0.72);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .step .chapter {
+      padding: 16px;
+      background: rgba(130,170,255,0.12);
+      color: #dbe6ff;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .step .content { padding: 16px 18px; }
+
+    .small { color: var(--muted); font-size: 0.93rem; }
+    .nowrap { white-space: nowrap; }
+
+    .system-rule {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .rule-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: rgba(16,18,24,0.55);
+    }
+
+    .rule-item .label { color: var(--gold); font-weight: 800; }
+
+
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .overview-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(16,18,24,0.55);
+      min-height: 138px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .overview-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--gold), rgba(130,170,255,0.3));
+      opacity: 0.85;
+    }
+
+    .overview-card .title {
+      color: #fff4cf;
+      font-weight: 800;
+      font-size: 1.08rem;
+      margin-bottom: 6px;
+      padding-left: 6px;
+    }
+
+    .overview-card .desc {
+      color: var(--muted);
+      font-size: 0.94rem;
+      padding-left: 6px;
+    }
+
+    .flow-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: stretch;
+      margin: 18px 0 8px;
+    }
+
+    .flow-node {
+      flex: 1 1 150px;
+      border: 1px solid var(--line);
+      background: rgba(29,35,48,0.76);
+      border-radius: 16px;
+      padding: 15px 16px;
+      min-height: 96px;
+    }
+
+    .flow-node strong {
+      color: #fff4cf;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .flow-arrow {
+      align-self: center;
+      color: var(--gold);
+      font-weight: 900;
+      font-size: 1.3rem;
+      opacity: 0.9;
+    }
+
+    .relationship-table td:first-child,
+    .relationship-table td:nth-child(2) {
+      white-space: nowrap;
+      font-weight: 700;
+      color: #dbe6ff;
+    }
+
+    .resource-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .resource-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(29,35,48,0.72);
+    }
+
+    .resource-card h4 {
+      margin-top: 0;
+    }
+
+    .use-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .use-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(16,18,24,0.55);
+      padding: 18px;
+    }
+
+    .use-card h3 {
+      margin-top: 0;
+    }
+
+    .use-list {
+      margin: 8px 0 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .use-list li {
+      margin: 8px 0;
+      padding-left: 16px;
+      position: relative;
+      color: var(--muted);
+    }
+
+    .use-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+    }
+
+    @media (max-width: 860px) {
+      .page { width: min(100% - 28px, 1180px); padding-top: 24px; }
+      header, section { padding: 24px; border-radius: 20px; }
+      .grid.two, .grid.three, .grid.four, .system-rule, .overview-grid, .resource-strip, .use-grid { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 1fr; }
+      .flow-line { display: grid; grid-template-columns: 1fr; }
+      .flow-arrow { display: none; }
+      .step .chapter { justify-content: flex-start; }
+      table { display: block; overflow-x: auto; }
+    }
+
+    @media print {
+      body { background: #fff; color: #111; }
+      .page { width: 100%; padding: 0; }
+      header, section, nav, .card, .step, .rule-item { box-shadow: none; background: #fff; color: #111; border-color: #ccc; }
+      h1, h2, h3, h4, th, .rule-item .label { color: #111; }
+      .subtitle, .small, .lead { color: #333; }
+      .pill, .tag { color: #111; border-color: #999; background: #f5f5f5; }
+      th { background: #f0f0f0; }
+      .note, .warning { background: #f7f7f7; color: #111; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+<header>
+<h1>玩家成長系統規格</h1>
+<div class="subtitle">本文件整理目前已確定的玩家成長系統，範圍包含武器、戰技、義肢技能、義肢強化、符文系統、基礎成長道具、商人販售、換裝系統、圖鑑系統與章節取得節奏。</div>
+<div class="meta">
+<span class="pill">武器自由切換</span>
+<span class="pill">義肢即時切換</span>
+<span class="pill">符文系統</span>
+<span class="pill">強化義肢系統</span>
+<span class="pill">基礎成長道具</span>
+<span class="pill">圖鑑系統</span>
+</div>
+</header>
+<nav>
+<div class="nav-title">目錄</div>
+<a href="#overview">系統總覽</a>
+<a href="#relations">玩家成長循環</a>
+<a href="#principles">設計原則</a>
+
+<a href="#weapons">武器與戰技</a>
+<a href="#prosthetic">義肢技能</a>
+<a href="#upgrade">義肢強化</a>
+<a href="#runes">符文系統</a>
+<a href="#base-growth">基礎成長</a>
+<a href="#merchant">商人販售</a>
+<a href="#costume">換裝系統</a>
+<a href="#bestiary">圖鑑系統</a>
+<a href="#constraints">待設計架構內容</a>
+</nav>
+<section id="overview">
+<h2>系統總覽</h2>
+<p class="lead">本區塊整理玩家成長系統的主幹與章節開放節奏，作為後續詳細規格的快速索引。</p>
+<div class="overview-grid">
+<div class="overview-card">
+<div class="title">武器</div>
+<div class="desc">三把武器可戰鬥中自由切換，分別提供均衡、快速、重型範圍三種手感。</div>
+</div>
+<div class="overview-card">
+<div class="title">戰技點數</div>
+<div class="desc">所有武器共用戰技點數。戰技點數透過攻擊敵人恢復，用於施放各武器戰技。</div>
+</div>
+<div class="overview-card">
+<div class="title">義肢技能</div>
+<div class="desc">義肢技能可即時切換，服務探索、解謎與戰鬥輔助。</div>
+</div>
+<div class="overview-card">
+<div class="title">義肢強化</div>
+<div class="desc">使用星核零件強化已取得義肢技能，每個義肢技能最高 3 級。</div>
+</div>
+<div class="overview-card">
+<div class="title">符文</div>
+<div class="desc">符文提供被動加成與配置傾向，只能在時痕碑更換。</div>
+</div>
+<div class="overview-card">
+<div class="title">基礎成長道具</div>
+<div class="desc">生命刻印與戰意刻印透過收集自動提升最大生命與戰技點數上限，不需要升級 UI。</div>
+</div>
+<div class="overview-card">
+<div class="title">時痕碎片</div>
+<div class="desc">用於提升符文容量，使玩家在第二、第三章逐步擴充配置空間。</div>
+</div>
+<div class="overview-card">
+<div class="title">星核零件</div>
+<div class="desc">義肢強化素材，可由主線、支線、密室、精英敵人與商人取得。</div>
+</div>
+<div class="overview-card">
+<div class="title">商人</div>
+<div class="desc">販售企劃定義的符文，以及少量時痕碎片、星核零件作為補救。</div>
+</div>
+<div class="overview-card">
+<div class="title">換裝系統</div>
+<div class="desc">提供男／女主角服裝更換，服裝來源包含預購遊戲、關卡解謎獲得與節慶發送。</div>
+</div>
+<div class="overview-card">
+<div class="title">圖鑑系統</div>
+<div class="desc">記錄玩家探索時遇過的敵人，提供怪物詳細介紹，強化世界觀理解與代入感。</div>
+</div>
+</div>
+<h3>章節開放節奏</h3>
+<table>
+<thead>
+<tr>
+<th>時間點</th>
+<th>開放內容</th>
+<th>玩家成長意義</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>遊戲開始</td><td>律法大劍、戰技點數</td><td>建立基礎近戰、戰技消耗與攻擊恢復戰技點數的概念。</td></tr>
+<tr><td>第一章</td><td>刻魂刃</td><td>學會遠距命中、機關觸發、火刃點火與基礎義肢解謎。</td></tr>
+<tr><td>第一章結束</td><td>符文配置、義肢強化</td><td>正式進入成長系統，玩家開始用符文與星核零件建立偏好。</td></tr>
+<tr><td>全遊戲階段</td><td>生命刻印、戰意刻印</td><td>透過探索收集基礎成長道具，自動提升最大生命與戰技點數上限。</td></tr>
+<tr><td>全遊戲階段</td><td>換裝系統</td><td>服裝作為外觀收集與活動回饋，不影響武器、符文、義肢或戰技規則。</td></tr>
+<tr><td>全遊戲階段</td><td>圖鑑系統</td><td>記錄玩家已遇過的敵人與其詳細介紹，作為探索後的世界觀補充。</td></tr>
+<tr><td>第二章前半</td><td>鉤索</td><td>擴充位移、追擊、閃避與貼身攻擊能力。</td></tr>
+<tr><td>第二章後半</td><td>磁引脈衝</td><td>金屬機關齒輪操作、平台啟停與金屬破牆、破甲。</td></tr>
+<tr><td>第三章</td><td>時空殘影、墜星巨劍、符文容量擴充至 7</td><td>補足位置回溯、避開大招、解謎撤退、範圍壓制與後期配置空間，準備進入後續決戰。</td></tr>
+</tbody>
+</table>
+</section>
+<section id="relations">
+<h2>玩家成長循環</h2>
+<p class="lead">本區塊呈現探索、資源取得、配置強化與內容回收的循環，並列出各系統之間的互動方式。</p>
+
+<div class="flow-line">
+<div class="flow-node"><strong>探索關卡</strong><span class="small">主線、支線、密室、捷徑與隱藏寶箱。</span></div>
+<div class="flow-arrow">→</div>
+<div class="flow-node"><strong>取得資源</strong><span class="small">符文、星核零件、時痕碎片、服裝、怪物圖鑑資料。</span></div>
+<div class="flow-arrow">→</div>
+<div class="flow-node"><strong>回到據點 / 時痕碑</strong><span class="small">配置符文、強化已取得義肢技能。</span></div>
+<div class="flow-arrow">→</div>
+<div class="flow-node"><strong>提升能力</strong><span class="small">被動加成、容量提升、義肢手感與用途強化、最大生命與戰技點數上限提升、男／女主角外觀更換。</span></div>
+<div class="flow-arrow">→</div>
+<div class="flow-node"><strong>回收內容</strong><span class="small">開啟支線、捷徑、隱藏寶箱與更高階挑戰。</span></div>
+</div>
+<h3>系統介紹</h3>
+<table class="relationship-table">
+<thead>
+<tr>
+<th>系統</th>
+<th>關聯對象</th>
+<th>互動方式</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>武器</td><td>戰技</td><td>透過攻擊敵人恢復，用於星辰審判、瞬影連斬、星殞迴旋。</td></tr>
+<tr><td>戰技點數</td><td>武器戰技</td><td>每把武器擁有各自戰技，施放時消耗共用戰技點數。</td></tr>
+<tr><td>義肢技能</td><td>關卡探索</td><td>用於遠距命中、位移、機械操控、破壞障礙，開啟支線、捷徑與隱藏寶箱。</td></tr>
+<tr><td>義肢強化</td><td>義肢技能</td><td>使用星核零件提升已取得義肢技能的距離、作用時間、範圍、冷卻或破壞能力。</td></tr>
+<tr><td>符文</td><td>玩家能力</td><td>提供生命、時停、機動、攻擊、戰技資源與義肢便利等被動加成。</td></tr>
+<tr><td>基礎成長道具</td><td>最大生命／戰技點數上限</td><td>生命刻印收集 3 個後，最大生命 +1；戰意刻印收集 3 個後，戰技點數上限 +1。</td></tr>
+<tr><td>時痕碑</td><td>符文配置</td><td>玩家只能在時痕碑更換符文，並依容量配置被動加成。</td></tr>
+<tr><td>商人</td><td>成長補救</td><td>販售企劃定義的符文，以及少量時痕碎片、星核零件。</td></tr>
+<tr><td>換裝系統</td><td>外觀收集</td><td>玩家可更換男／女主角服裝；服裝可透過預購遊戲、關卡解謎獲得或節慶發送取得，僅影響外觀呈現。</td></tr>
+<tr><td>圖鑑系統</td><td>怪物資料</td><td>玩家在探索與戰鬥中遇過的敵人會登錄至圖鑑，提供怪物詳細介紹與世界觀補充。</td></tr>
+</tbody>
+</table>
+<h3>義肢用途對照</h3>
+<div class="use-grid">
+<div class="use-card">
+<h3>刻魂刃</h3>
+<span class="tag">遠距精準</span><span class="tag">火刃</span>
+<ul class="use-list">
+<li>探索：命中遠處機關。</li>
+<li>解謎：穿過火源形成火刃。</li>
+<li>戰鬥：遠距補刀與引爆孢子囊。</li>
+</ul>
+</div>
+<div class="use-card">
+<h3>鉤索</h3>
+<span class="tag">位移</span><span class="tag">貼身攻擊</span>
+<ul class="use-list">
+<li>探索：跨越斷層與高低差。</li>
+<li>解謎：拉向特殊鉤點。</li>
+<li>戰鬥：拉向敵人並快速貼近。</li>
+</ul>
+</div>
+<div class="use-card">
+<h3>磁引脈衝</h3>
+<span class="tag">機械操控</span><span class="tag">金屬干擾</span>
+<ul class="use-list">
+<li>探索：啟動金屬平台與機械路線。</li>
+<li>解謎：停止、移動或切換機關。</li>
+<li>戰鬥：破壞護盾，並處理帶有金屬或機械結構的防禦。</li>
+</ul>
+</div>
+<div class="use-card">
+<h3>時空殘影</h3>
+<span class="tag">位置回溯</span><span class="tag">避開大招</span>
+<ul class="use-list">
+<li>探索：回到數秒前位置，通過高風險路線或取得支線獎勵後撤回安全點。</li>
+<li>解謎：利用位置回溯處理壓力機關、限時通路與撤退需求。</li>
+<li>戰鬥：避開大型攻擊、脫離危險區域並重新站位。</li>
+</ul>
+</div>
+</div>
+<h3>資源來源與用途</h3>
+<div class="resource-strip">
+<div class="resource-card">
+<h4>戰技點數</h4>
+<p><strong>來源：</strong>攻擊敵人恢復。</p>
+<p><strong>用途：</strong>施放三把武器各自戰技。</p>
+</div>
+<div class="resource-card">
+<h4>星核零件</h4>
+<p><strong>來源：</strong>主線、支線、密室、精英敵人與商人。</p>
+<p><strong>用途：</strong>強化已取得義肢技能。</p>
+</div>
+<div class="resource-card">
+<h4>時痕碎片</h4>
+<p><strong>來源：</strong>主線、支線、密室與商人少量販售。</p>
+<p><strong>用途：</strong>提升符文容量。</p>
+</div>
+<div class="resource-card">
+<h4>生命刻印</h4>
+<p><strong>來源：</strong>關卡探索、支線、密室、挑戰獎勵。</p>
+<p><strong>用途：</strong>收集 3 個後，最大生命 +1。</p>
+</div>
+<div class="resource-card">
+<h4>戰意刻印</h4>
+<p><strong>來源：</strong>關卡探索、支線、密室、挑戰獎勵。</p>
+<p><strong>用途：</strong>收集 3 個後，戰技點數上限 +1。</p>
+</div>
+<div class="resource-card">
+<h4>服裝</h4>
+<p><strong>來源：</strong>預購遊戲、關卡解謎獲得、節慶發送。</p>
+<p><strong>用途：</strong>更換男／女主角外觀，不影響戰鬥與成長數值。</p>
+</div>
+</div>
+</section>
+<section id="principles">
+<h2>一、設計原則</h2>
+<p class="lead">玩家成長系統以清楚、直覺、低操作負擔為核心。武器、義肢、符文與戰技各自有明確用途，但不彼此綁定成複雜組合。</p>
+<div class="system-rule">
+<div class="rule-item"><div class="label">武器</div>可在戰鬥中自由切換，主要差異為攻擊手感、攻速、範圍、破防與戰技用途。</div>
+<div class="rule-item"><div class="label">戰技</div>每把武器各自擁有戰技，消耗共用戰技點數，戰技點數透過攻擊敵人恢復。</div>
+<div class="rule-item"><div class="label">義肢技能</div>可在戰鬥中即時切換，用於解謎、探索與戰鬥輔助，定位接近《死亡之門》的工具型技能。</div>
+<div class="rule-item"><div class="label">符文</div>只提供被動加成，不改變戰鬥方式，不與特定武器、義肢或戰技綁定。</div>
+<div class="rule-item"><div class="label">基礎成長</div>生命刻印收集 3 個後提升最大生命，戰意刻印收集 3 個後提升戰技點數上限，取得後自動累積，不需要升級 UI。</div>
+<div class="rule-item"><div class="label">時痕碑</div>符文只能在時痕碑更換；時痕碑同時作為存檔點與符文配置入口。</div>
+<div class="rule-item"><div class="label">商人</div>販售補救與便利型商品，包含部分符文與少量星核零件，限量販售。</div>
+<div class="rule-item"><div class="label">換裝</div>男／女主角服裝更換屬於外觀功能，服裝來源包含預購遊戲、關卡解謎獲得與節慶發送。</div>
+<div class="rule-item"><div class="label">圖鑑</div>玩家在探索時遇過的敵人會登錄至圖鑑，提供怪物詳細介紹與世界觀補充。</div>
+</div>
+<div class="warning">武器、符文、義肢、戰技之間採用平行支撐關係。玩家不需要因為切換武器而重新配置符文，也不需要依賴特定義肢或符文才能發動某個戰技。</div>
+</section>
+
+<section id="weapons">
+<h2>二、武器與戰技</h2>
+<p class="lead">三把武器可於戰鬥中自由切換。每把武器擁有獨立戰技，但戰技皆消耗共用戰技點數。武器不與符文或義肢技能形成組合技。</p>
+<table>
+<thead>
+<tr>
+<th>武器</th>
+<th>定位</th>
+<th>戰技</th>
+<th>戰技效果</th>
+<th>設計重點</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>律法大劍</strong></td>
+<td>均衡型大劍。平砍不過度笨重，兼具穩定輸出與破防入門。</td>
+<td class="nowrap"><strong>星辰審判</strong></td>
+<td>消耗戰技點數，凝聚星辰劍影向前重劈。可三段蓄力，蓄力越高傷害與破防越高。命中持盾、重甲或大型敵人時，可大幅削減防禦狀態。</td>
+<td>適合作為主武器與玩家初期熟悉戰技破防的核心手段。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>瞬影匕首</strong></td>
+<td>高速型武器。出刀速度極快，如影子閃現，適合追擊、小怪與靈活敵人。</td>
+<td class="nowrap"><strong>瞬影連斬</strong></td>
+<td>消耗戰技點數，向前短距離突進，對路徑上的敵人造成多段斬擊。</td>
+<td>強調速度與連擊感；破防能力較低，不取代律法大劍的破防定位。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>墜星巨劍</strong></td>
+<td>重型範圍武器。攻擊慢、範圍大、破防高，適合群體壓制與大型敵人。</td>
+<td class="nowrap"><strong>星殞迴旋</strong></td>
+<td>消耗大量戰技點數，短暫蓄力後，玩家與墜星巨劍一同進入迴旋狀態。持續期間可控制移動方向，對路徑上的敵人造成連續斬擊、擊退與破防累積。小型敵人若承受完整傷害，通常會被直接擊倒；對重型敵人與 Boss 則以破防與壓制為主。</td>
+<td>提供後期範圍壓制能力。路徑上的敵人不設定為必定斬殺，避免壓過其他武器。</td>
+</tr>
+</tbody>
+</table>
+<h3>戰技共通規則</h3>
+<ul>
+<li>所有戰技消耗共用戰技點數。</li>
+<li>戰技點數透過攻擊敵人恢復。</li>
+<li>每把武器的戰技只服務該武器本身，不與其他武器、義肢技能或符文產生連動條件。</li>
+<li>戰技定位需保持清楚：星辰審判負責蓄力破防；瞬影連斬負責突進多段；星殞迴旋負責範圍壓制。</li>
+</ul>
+</section>
+<section id="prosthetic">
+<h2>三、義肢技能</h2>
+<p class="lead">義肢技能為主角左手機械義肢的工具模組，可於戰鬥中即時切換。義肢技能同時服務探索、解謎與戰鬥輔助，但不與武器戰技或符文形成複雜連動。</p>
+<table>
+<thead>
+<tr>
+<th>取得時機</th>
+<th>義肢技能</th>
+<th>核心定位</th>
+<th>可用情境</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一章</td>
+<td class="nowrap"><strong>刻魂刃</strong></td>
+<td>遠距精準命中</td>
+<td>遠距攻擊、命中遠處機關、穿過火源形成火刃、點火盆、燒菌絲、引爆孢子囊。</td>
+<td>不作為主要武器替代品；平常狀態一次只能存在 1 發，時停狀態最多可預放 3 發。</td>
+</tr>
+<tr>
+<td>第二章前半</td>
+<td class="nowrap"><strong>鉤索</strong></td>
+<td>位移與追擊</td>
+<td>對特殊鉤點施放，將玩家拉向鉤點；對指定敵人施放，將玩家拉向敵人身邊，用於閃避危險與貼身攻擊。</td>
+<td>不是把敵人拉到玩家身邊；重型敵人與 Boss 需使用指定部位或鉤點。</td>
+</tr>
+<tr>
+<td>第二章後半</td>
+<td class="nowrap"><strong>磁引脈衝</strong></td>
+<td>中距離磁力干擾</td>
+<td>啟動、停止或移動金屬機械裝置；破牆、推動重物，並破壞護盾。</td>
+<td>不自由吸拉所有物件，不控制普通 NPC，不與戰技、武器、符文綁定。</td>
+</tr>
+<tr>
+<td>第三章</td>
+<td class="nowrap"><strong>時空殘影</strong></td>
+<td>位置回溯與危險迴避</td>
+<td>義肢會在玩家數秒前的位置留下時間殘影，施放後玩家回到殘影所在位置。主要用於避開大型攻擊、脫離危險區域、修正站位與解決需要位置回溯的機關。</td>
+<td>只回溯玩家位置，不回復生命，不重置敵人、機關、道具或場景狀態；需有明確冷卻與殘影視覺提示。</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="upgrade">
+<h2>四、義肢強化系統</h2>
+<p class="lead">義肢強化於第一章結束後開啟。強化素材只使用一種「星核零件」，所有已取得義肢技能都可強化。每個義肢技能最高 3 級。</p>
+<h3>強化素材</h3>
+<table>
+<thead>
+<tr>
+<th>素材</th>
+<th>用途</th>
+<th>取得來源</th>
+<th>販售規則</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>星核零件</strong></td>
+<td>義肢技能通用強化素材。</td>
+<td>小怪低機率掉落、精英敵人、關卡密室寶箱、支線獎勵、能力回收區、小 Boss、中 Boss。</td>
+<td>商人可少量限量販售，賣完不補，作為補救手段。</td>
+</tr>
+</tbody>
+</table>
+<h3>強化消耗</h3>
+<table>
+<thead>
+<tr>
+<th>等級</th>
+<th>消耗</th>
+<th>設計目的</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Lv1</td><td>星核零件 x5</td><td>低成本強化，讓玩家取得新義肢後能快速感受到成長。</td></tr>
+<tr><td>Lv2</td><td>星核零件 x10</td><td>中度投資，玩家開始在不同義肢技能之間取捨。</td></tr>
+<tr><td>Lv3</td><td>星核零件 x20</td><td>高價投資，代表玩家對常用義肢技能的明確偏好。</td></tr>
+</tbody>
+</table>
+<h3>義肢強化內容</h3>
+<table>
+<thead>
+<tr>
+<th>義肢技能</th>
+<th>Lv1</th>
+<th>Lv2</th>
+<th>Lv3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>刻魂刃</strong></td>
+<td>飛行速度提升</td>
+<td>射程提升</td>
+<td>命中敵人、機關或可互動物件後，冷卻時間縮短</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>鉤索</strong></td>
+<td>鉤索距離提升</td>
+<td>牽引期間受到傷害降低</td>
+<td>鉤索冷卻時間縮短</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>磁引脈衝</strong></td>
+<td>作用距離提升</td>
+<td>停機、失衡或平台維持時間增加</td>
+<td>可影響大型金屬核心與高階支線機關</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>時空殘影</strong></td>
+<td>回溯時間增加</td>
+<td>冷卻時間縮短</td>
+<td>回溯後短暫減傷</td>
+</tr>
+</tbody>
+</table>
+<h3>星核零件總量目標</h3>
+<table>
+<thead>
+<tr>
+<th>玩家類型</th>
+<th>預期取得量</th>
+<th>可達成強化狀態</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主線玩家</td>
+<td>約 45～55 個</td>
+<td>可將 1 個義肢升至 Lv3，並將 1～2 個義肢升至 Lv1；或將多個義肢升至 Lv1～Lv2。</td>
+</tr>
+<tr>
+<td>一般探索玩家</td>
+<td>約 80～95 個</td>
+<td>可將 2 個義肢升至 Lv3；或 1 個義肢升至 Lv3，其他義肢升至 Lv2 左右。</td>
+</tr>
+<tr>
+<td>全探索玩家</td>
+<td>約 125～140 個</td>
+<td>可接近全滿或全滿，作為深度探索的成長回報。</td>
+</tr>
+</tbody>
+</table>
+<div class="note">主線通關不應要求特定義肢升到 Lv2 或 Lv3。高階強化可用於開啟支線、捷徑、隱藏寶箱或提升操作舒適度。</div>
+</section>
+<section id="runes">
+<h2>五、符文系統</h2>
+<p class="lead">符文是被動強化系統。玩家只能在時痕碑更換符文，符文不改變基礎操作方式，不與武器、義肢技能或戰技形成組合技。</p>
+<h3>符文容量</h3>
+<table>
+<thead>
+<tr>
+<th>時間點</th>
+<th>容量</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>第一章結束</td><td>3</td><td>正式開放符文配置，玩家可開始形成初步偏好。</td></tr>
+<tr><td>第二章中段</td><td>4</td><td>取得第一階段容量提升。</td></tr>
+<tr><td>第二章結束</td><td>5</td><td>玩家可建立較完整的配置傾向。</td></tr>
+<tr><td>第三章中段</td><td>6</td><td>配置選擇更明確，可同時兼顧生存、時停、機動或戰技資源。</td></tr>
+<tr><td>第三章結束</td><td>7</td><td>進入後續決戰前的完整配置容量。</td></tr>
+</tbody>
+</table>
+<h3>容量提升道具</h3>
+<table>
+<thead>
+<tr>
+<th>道具</th>
+<th>效果</th>
+<th>取得方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>時痕碎片</strong></td>
+<td>每收集 2 個，符文容量 +1。</td>
+<td>主線獎勵、支線密室、小 Boss、隱藏房間、能力回收區。</td>
+</tr>
+</tbody>
+</table>
+<div class="note">商人不販售時痕碎片，符文容量提升以探索與關卡回收為主要來源。</div>
+<h3>第一章符文</h3>
+<table>
+<thead>
+<tr>
+<th>符文</th>
+<th>容量</th>
+<th>效果</th>
+<th>取得方式</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><strong>凝滯符文</strong></td><td>2</td><td>時間暫停持續時間小幅增加。</td><td>雅雪小屋時痕碑。</td></tr>
+<tr><td><strong>疾刃符文</strong></td><td>1</td><td>刻魂刃飛行速度小幅提升。</td><td>市集支線密室。</td></tr>
+<tr><td><strong>生息符文</strong></td><td>1</td><td>最大生命小幅增加。</td><td>商人販售。</td></tr>
+<tr><td><strong>輕步符文</strong></td><td>1</td><td>移動速度小幅提升。</td><td>商人販售。</td></tr>
+</tbody>
+</table>
+<h3>第二章符文</h3>
+<table>
+<thead>
+<tr>
+<th>符文</th>
+<th>容量</th>
+<th>效果</th>
+<th>取得方式</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><strong>牽引符文</strong></td><td>1</td><td>鉤索可作用距離小幅增加。</td><td>鉤索支線平台區。</td></tr>
+<tr><td><strong>迅擊符文</strong></td><td>2</td><td>近戰攻擊速度小幅提升。</td><td>第二章中段小 Boss 或精英戰後。</td></tr>
+<tr><td><strong>磁鳴符文</strong></td><td>1</td><td>磁引脈衝作用時間小幅增加。</td><td>磁引脈衝支線機關房。</td></tr>
+<tr><td><strong>守勢符文</strong></td><td>2</td><td>受擊後短時間內受到的下一次傷害降低。</td><td>重型敵人支線房。</td></tr>
+<tr><td><strong>疾行符文</strong></td><td>1</td><td>閃避距離小幅增加。</td><td>商人販售。</td></tr>
+<tr><td><strong>戰意符文</strong></td><td>2</td><td>攻擊命中時，戰技點數恢復量小幅增加。</td><td>商人販售，第二章後半上架。</td></tr>
+</tbody>
+</table>
+<h3>第三章符文</h3>
+<table>
+<thead>
+<tr>
+<th>符文</th>
+<th>容量</th>
+<th>效果</th>
+<th>取得方式</th>
+</tr>
+</thead>
+<tbody>
+<tr><td><strong>殘影符文</strong></td><td>1</td><td>時空殘影冷卻時間小幅縮短。</td><td>時空殘影解謎支線。</td></tr>
+<tr><td><strong>破勢符文</strong></td><td>2</td><td>戰技造成的破防值小幅增加。</td><td>重甲敵人教學後。</td></tr>
+<tr><td><strong>堅韌符文</strong></td><td>2</td><td>最大生命中幅增加。</td><td>第三章主線中段或大型支線獎勵。</td></tr>
+<tr><td><strong>流速符文</strong></td><td>2</td><td>時間暫停能量恢復速度提升。</td><td>時間機關房。</td></tr>
+<tr><td><strong>復燃符文</strong></td><td>3</td><td>擊敗敵人時，少量恢復生命。</td><td>高難度支線或隱藏 Boss 獎勵。</td></tr>
+<tr><td><strong>精準符文</strong></td><td>1</td><td>義肢技能傷害小幅提升。</td><td>商人販售，第三章中段上架。</td></tr>
+</tbody>
+</table>
+<h3>符文配置傾向</h3>
+<table>
+<thead>
+<tr>
+<th>配置傾向</th>
+<th>強化方向</th>
+<th>相關符文</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>生存型</td><td>提高容錯、血量、減傷與續戰。</td><td>生息、守勢、堅韌、復燃。</td></tr>
+<tr><td>時停型</td><td>延長時停時間，提高時停恢復效率。</td><td>凝滯、流速。</td></tr>
+<tr><td>機動型</td><td>提升移動、閃避與鉤索探索舒適度。</td><td>輕步、疾行、牽引。</td></tr>
+<tr><td>攻擊型</td><td>提升攻擊速度、義肢傷害與破防效率。</td><td>迅擊、精準、破勢。</td></tr>
+<tr><td>戰技資源型</td><td>讓戰技點數恢復更順，並提高戰技破防價值。</td><td>戰意、破勢、迅擊。</td></tr>
+<tr><td>義肢便利型</td><td>提升義肢技能使用手感與容錯。</td><td>疾刃、牽引、磁鳴、震波、精準。</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="base-growth">
+<h2>六、基礎成長道具</h2>
+<p class="lead">基礎成長道具用於提升玩家最大生命與戰技點數上限。此成長不透過升級功能或角色 UI 操作，而是透過探索與挑戰取得道具後自動累積。</p>
+<table>
+<thead>
+<tr>
+<th>道具</th>
+<th>累積規則</th>
+<th>提升效果</th>
+<th>設計目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>生命刻印</strong></td>
+<td>收集 3 個後自動生效</td>
+<td>最大生命 +1</td>
+<td>提供永久生存成長，作為探索與支線回報。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>戰意刻印</strong></td>
+<td>收集 3 個後自動生效</td>
+<td>戰技點數上限 +1</td>
+<td>提升武器戰技可使用空間，強化戰鬥歷程。</td>
+</tr>
+</tbody>
+</table>
+<div class="note">生命刻印與戰意刻印取得後只進行累積提示，集滿 3 個時自動提升對應能力。此系統不佔符文容量、不消耗星核零件，也不需要額外升級介面。</div>
+</section>
+<section id="merchant">
+<h2>七、商人販售規格</h2>
+<p class="lead">商人提供補救與便利選項，不販售主線能力。商品以限量為主，賣完不補。</p>
+<h3>符文販售</h3>
+<table>
+<thead>
+<tr>
+<th>上架時機</th>
+<th>商品</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>第一章結束後</td><td>生息符文、輕步符文</td><td>提高生存與跑圖舒適度，作為符文系統初期選項。</td></tr>
+<tr><td>第二章中段</td><td>疾行符文</td><td>提升閃避距離，配合第二章更高頻率的位移與戰鬥。</td></tr>
+<tr><td>第二章後半</td><td>戰意符文</td><td>玩家已理解戰技點數循環後，提供戰技資源強化選項。</td></tr>
+<tr><td>第三章中段</td><td>精準符文</td><td>此時玩家已擁有多個義肢技能，義肢傷害加成具有明確價值。</td></tr>
+</tbody>
+</table>
+<h3>星核零件販售</h3>
+<table>
+<thead>
+<tr>
+<th>上架時機</th>
+<th>販售數量</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>第一章結束後</td><td>5 個</td><td>確保玩家至少能將刻魂刃升至 Lv1。</td></tr>
+<tr><td>第二章前半</td><td>5 個</td><td>補救鉤索 Lv1 強化需求。</td></tr>
+<tr><td>第二章後半</td><td>5 個</td><td>補救磁引脈衝 Lv1 強化需求。</td></tr>
+<tr><td>第三章中段</td><td>5～10 個</td><td>補救時空殘影或高階義肢強化需求。</td></tr>
+</tbody>
+</table>
+<div class="note">商人販售的星核零件總量建議控制在 20～25 個，定位為補救與取捨輔助，不作為主要強化來源。</div>
+</section>
+<section id="costume">
+<h2>八、換裝系統</h2>
+<p class="lead">換裝系統為外觀收集與展示系統。玩家可更換男／女主角服裝，服裝不影響武器、戰技、義肢技能、義肢強化、符文容量或角色數值。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>規格內容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>功能定位</strong></td>
+<td>提供男／女主角服裝更換，作為外觀收集、預購回饋、關卡解謎獎勵與節慶發送內容。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>服裝效果</strong></td>
+<td>僅改變男／女主角外觀呈現，不提供戰鬥數值、不改變戰鬥方式，也不影響符文、義肢或武器規則。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>更換方式</strong></td>
+<td>玩家可於指定介面更換已取得服裝；實際入口可後續依 UI 架構規劃。</td>
+</tr>
+</tbody>
+</table>
+<h3>服裝來源</h3>
+<table>
+<thead>
+<tr>
+<th>來源</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>預購遊戲</strong></td>
+<td>可作為預購版本或早期購買回饋服裝。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>關卡解謎獲得</strong></td>
+<td>可作為支線解謎、隱藏房間、捷徑回收或特殊挑戰的外觀獎勵。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>節慶發送</strong></td>
+<td>可作為節慶活動、營運發送或期間限定紀念服裝。</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bestiary">
+<h2>九、圖鑑系統</h2>
+<p class="lead">圖鑑系統用於記錄玩家在探索與戰鬥中遇過的怪物。玩家可在圖鑑中查看已遇過怪物的詳細介紹，補充敵人背景、習性與世界觀資訊，提升探索後的代入感。</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>規格內容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="nowrap"><strong>功能定位</strong></td>
+<td>作為怪物資料收藏與世界觀補充系統，概念接近《空洞騎士》的圖鑑。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>登錄條件</strong></td>
+<td>玩家在探索或戰鬥中遇到怪物後，該怪物會登錄至圖鑑。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>顯示內容</strong></td>
+<td>顯示已遇過怪物的名稱、外觀識別、詳細介紹、背景描述與相關世界觀資訊。</td>
+</tr>
+<tr>
+<td class="nowrap"><strong>系統目的</strong></td>
+<td>讓玩家在探索後能回看敵人資料，理解怪物與章節環境、文明、詛咒或事件之間的關聯。</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="constraints">
+<h2>十、待設計架構內容</h2>
+<div class="card">
+<ul>
+<li>義肢技能可同時服務探索、解謎與戰鬥輔助、開啟支線、捷徑、隱藏寶箱。</li>
+<li>商人可販售企劃定義的符文與少量時痕碎片、星核零件作為補救。</li>
+<li>星核零件可透過主線、支線、密室、精英敵人與商人取得。</li>
+<li>符文可提供被動加成與配置傾向。</li>
+<li>第二、第三章主題與 Boss 尚未納入討論</li>
+</ul>
+</div>
+</section>
+</div>
+</body>
+</html>
